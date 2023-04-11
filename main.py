@@ -1,17 +1,46 @@
 import pygame
 import visca_over_ip.camera as camera
 import pygame.font
+import configparser
 
 pygame.init()
 # This is a simple class that will help us print to the screen.
 # It has nothing to do with the joysticks, just outputting the
 # information.
 
+def loadconfig():
+    config  = configparser.ConfigParser()
+    config.read("config.ini")
+    configuration = {}
+    configuration["expo"] = int(config["App config"]["expo"])
+    configuration["limiter_p_t"] = eval(config["App config"]["limiter_p_t"])
+    configuration["limiter_z"] = eval(config["App config"]["limiter_z"])
+    configuration["limiter_p_t"] = eval(config["App config"]["limiter_p_t"])
+
+    configuration["pan_axis"] = eval(config["App config"]["pan_axis"])
+    configuration["tilt_axis"] = eval(config["App config"]["tilt_axis"])
+    configuration["zoom_axis"] = eval(config["App config"]["zoom_axis"])
+
+    configuration["pan_multiplier"] = eval(config["App config"]["pan_multiplier"])
+    configuration["tilt_multiplier"] = eval(config["App config"]["tilt_multiplier"])
+    configuration["zoom_multiplier"] = eval(config["App config"]["zoom_multiplier"])
+
+    configuration["next_btn"] = eval(config["App config"]["next_btn"])
+    configuration["prev_btn"] = eval(config["App config"]["prev_btn"])
+    configuration["stop_btn"] = eval(config["App config"]["stop_btn"])
+
+    cam = config["Camera config"]["cameras list"].split(",")
+    return configuration,cam
 
 #coefficient expo
+
+configuration = None
 exp = 5
 limiter_p_t = 0.7
 limiter_z = 1
+
+
+
 class TextPrint:
     def __init__(self):
         self.reset()
@@ -57,7 +86,8 @@ def main():
     # at the start of the program.
     joysticks = {}
     index = 0
-    cams = loads_cam()
+    cfg , cams = loadconfig()
+    print(cams)
     done = False
     tilt = 0
     pan = 0
@@ -82,20 +112,20 @@ def main():
                 
 
                 #cam switching
-                if event.button == 0:
+                if event.button == cfg["prev_btn"]:
                     index -= 1
                     if index == -1 :
                         index = len(cams)-1
                     else :
                         pass
                 
-                elif event.button == 1:
+                elif event.button == cfg["next_btn"]:
                     index += 1
                     if index == len(cams):
                         index = 0
                     else :
                         pass
-                elif event.button == 3 :
+                elif event.button == cfg["stop_btn"] :
                     tilt = 0
                     pan = 0
                     zoom = 0
@@ -106,13 +136,12 @@ def main():
 
             if event.type == pygame.JOYAXISMOTION :
                 ##print(event.value)
-                if event.axis == 0 :
-                    pan  = int((1 if event.value > 0 else -1)*abs(event.value**exp*24*limiter_p_t))
-                elif event.axis == 1 :
-                    tilt = int((-1 if event.value > 0 else 1)*abs(event.value**exp*24*limiter_p_t))
-                elif event.axis == 3 :
-                    zoom = int((1 if event.value > 0 else -1)*abs(event.value**exp*7*limiter_z))
-
+                if event.axis == cfg["pan_axis"] :
+                    pan  = int((cfg["pan_multiplier"] if event.value > 0 else cfg["pan_multiplier"]*-1)*abs(event.value**cfg["expo"]*24*cfg["limiter_p_t)"]))
+                elif event.axis == cfg["tilt_axis"] :
+                    tilt = int((cfg["tilt_multiplier"] if event.value > 0 else cfg["tilt_multiplier"]*-1)*abs(event.value**cfg["expo"]*24*cfg["limiter_p_t)"]))
+                elif event.axis == cfg["zoom_axis"] :
+                    zoom = int((cfg["zoom_multiplier"] if event.value > 0 else cfg["zoom_multiplier"]*-1)*abs(event.value**cfg["expo"]*24*cfg["limiter_z)"]))
 
             # Handle hotplugging
             if event.type == pygame.JOYDEVICEADDED:
