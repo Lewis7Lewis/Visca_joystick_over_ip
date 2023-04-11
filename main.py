@@ -62,14 +62,6 @@ class TextPrint:
     def unindent(self):
         self.x -= 10
 
-
-def loads_cam():
-    cam = []
-    with open("cam.list","r") as fic :
-        cam = list(    map( lambda x : x.replace("\n","")   ,fic.readlines())             )
-    print(cam)
-    return cam
-
 def main():
     # Set the width and height of the screen (width, height), and name the window.
     screen = pygame.display.set_mode((300, 300))
@@ -193,7 +185,6 @@ def main():
         # Limit to 30 frames per second.
         clock.tick(30)
     cam.close_connection()
-
 
 if __name__ == "__main__":
     main()
